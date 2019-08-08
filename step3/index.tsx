@@ -1,11 +1,15 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-export const App = () => {
-    
-        return(
-          <div>HELLO WORLD</div>
-        )
-      }
-    
+const AppChild = () => {
+  return (
+    <div>HELLO WORLD</div>
+  )
+}
+const App =() => {
+  return (
+    <AppChild />
+  )
+      
+}
 ReactDOM.render(<App />, document.getElementById('container'))
