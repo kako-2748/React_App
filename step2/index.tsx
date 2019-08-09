@@ -7,9 +7,9 @@ import {useState}  from 'react'
 const App =() => {
   const [data, setData] = useState('HELLO WORLD')
   return (
-    <>
+    <div>
       <p>{data}</p>
-    </>
+    </div>
   )
 
 }
