@@ -12,9 +12,12 @@ const AppChild =() => {
   )
 }
 const App =() => {
-  const [data, setData] = useState('HELLO WORLD')
+  const [data, setData] = useState('')
   return (
-    <App />
+   <div>
+     <p>{data}</p>
+     <button onClick={() => setData(data + 'hello world')}>ボタン</button>
+   </div>
   )
 }
 ReactDOM.render(<AppChild />,document.getElementById('container'))
