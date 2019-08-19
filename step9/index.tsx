@@ -9,9 +9,9 @@ import {useState}  from 'react'
 const TextComponent = (_props) => {
   return (
   <div>
-    <input type="text" value={_props.name} placeholder="名前" onChange={_props.ChangeName} />
-    <input type="text" value={_props.age} placeholder="年齢" onChange={_props.ChangeAge} />
-  </div>);
+    <input type="text" placeholder={_props.title} value={_props.value} onChange={_props.onChange}/>
+  </div>
+  )
 }
 
 const RadioComponent = (_props) => {
@@ -32,8 +32,8 @@ const ButtonComponent = (_props) => {
 
 const App = () => {
   const [name, setName] = useState('')
-  const [age, setAge] = useState('')
   const [gender, setGender] = useState('')
+  const [age, setAge] = useState('')
 
   const Alert = () => {
     alert(
@@ -56,13 +56,17 @@ const App = () => {
     }
   return (
     <form id="forms">
-      <TextComponent 
-      name={name} ChangeName={changeName}
-      age={age} ChangeAge={changeAge}/>
-      <RadioComponent gender={gender}
-      CheckedMen={checkedMen} CheckedWomen={checkedWomen}/>
-      <ButtonComponent getAlert={Alert}/>
-    </form>
+     <TextComponent
+      title="名前"
+     value={name} onChange={changeName} />
+     <RadioComponent gender={gender}
+     CheckedMen={checkedMen} CheckedWomen={checkedWomen}/>
+     <TextComponent
+      title="年齢"
+     value={age} onChange={changeAge} />
+     <ButtonComponent getAlert={Alert}/>
+   </form>
+
   )
 }
 ReactDOM.render(<App />,document.getElementById('container'))
