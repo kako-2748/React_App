@@ -12,57 +12,53 @@ dispatchを使用して変数を変更すること
 
 const FormComponent = () => {
   const [name, age,gender] = useContext(FormContext)
-  const [changeName, changeAge, checkedMen, checkedWomen, showIndicator] = useContext(ChangeFormContext)
+  const [changeName, changeAge,] = useContext(ChangeFormContext)
+  const [checkedMen, checkedWomen, showIndicator] = useContext(CheckedFormText)
   
   return (
     <div>
-    <input type="text" value={name} placeholder="氏名" onChange={changeName} />
-    <input type="radio" name={gender} value="男" onChange={checkedMen} /><label htmlFor="gender">男</label>
-    <input type="radio" name={gender} value="女" onChange={checkedWomen} /><label htmlFor="gender">女</label>
-    <input type="text" value={age} placeholder="年齢" onChange={changeAge} />
-    <button onClick={showIndicator}>登録</button>
+     <input type="text" value={name} placeholder="氏名" onChange={changeName} />
+     <input type="radio" name={gender} value="男" onChange={checkedMen} /><label htmlFor="gender">男</label>
+     <input type="radio" name={gender} value="女" onChange={checkedWomen} /><label htmlFor="gender">女</label>
+     <input type="text" value={age} placeholder="年齢" onChange={changeAge} />
+     <button onClick={showIndicator}>登録</button>
     </div>
   )
 }
+
+type form = string[]
+const FormContext = createContext<form>([])
+const ChangeFormContext = createContext([(e:any) => {e.target.value}])
+const CheckedFormText = createContext([() => { }])
 
 const initState = {show: false}
 const Reducer = (state:any,action:any) => {
   switch(action.type) {
     case 'showImg':
-    return {show: true}
+    return {...state, show: true}
     case 'hiddenImg':
-      return {show: false}
+      return {...state, show: false}
       default:
         return state
   }
 }
 
-const FormContext = createContext([])
-const ChangeFormContext = createContext([() => {}])
 const App = () => {
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
   const [gender, setGender] = useState('')
   const [state, dispatch] = useReducer(Reducer,
-    initState)
-    let img:any = document.getElementById('image')
+    initState)  
 
   const showIndicator = () => {
     dispatch({type: 'showImg'})
     
-    console.log({state})
-    if({show: true}){
-      img.style.display = "block"
-      setTimeout(() => {
-        img.style.display = "none"
-      }, 5000);
-      console.log('block')
-    }else{
-      img.style.display ="none"
-      console.log('none')
-    }
+    setTimeout(() => {
+      dispatch({type: 'hiddenImg'})
+    }, 5000)
   }
-  const changeName = (e: any) => {
+
+  const changeName = (e:any) => {
     setName(e.target.value)
   }
   const changeAge = (e:any) => {
@@ -74,19 +70,21 @@ const App = () => {
   const checkedWomen = () => {
     setGender('女')
   }
-
-
+console.log(state)
   return (
-    <FormContext.Provider value={[name, age, gender]}>
-      <ChangeFormContext.Provider value={[changeName, changeAge, checkedMen, checkedWomen, showIndicator]}>
+    <FormContext.Provider value={[name,age,gender]}>
+      <ChangeFormContext.Provider value={[changeName, changeAge]}>
+        <CheckedFormText.Provider value={[checkedMen, checkedWomen, showIndicator]}>
         <FormComponent />
-        <div　id="image" style={{display:'none'}}>
-         <img src="../img/ajax-loader.gif" />
-        </div>
+        {state.show &&
+          <div>
+            <img src="./img/ajax-loader.gif" />
+          </div>
+        }
+        </CheckedFormText.Provider>
        </ChangeFormContext.Provider>
      </FormContext.Provider>
   )
 }
+
 ReactDOM.render(<App />,document.getElementById('container'))
-
-
