@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feed>
+<entry>
+  <content type="text/html">user
+ name
+ email
+ gender
+ memo
+ birthday
+ check
+ select
+ job
+ address
+ height
+ weight
+ select_box
+ check_box</content>
+  <contributor>
+    <uri>urn:vte.cx:acl:/_group/$admin,CRUD</uri>
+  </contributor>
+  <contributor>
+    <uri>urn:vte.cx:acl:+,R</uri>
+  </contributor>
+  <link href="/_settings/template" rel="self"/>
+  <rights>
+</rights>
+</entry>
+<entry>
+  <link href="/_settings/template_property" rel="self"/>
+</entry>
+  <entry>
+    <link href="/_settings/template_property/user" rel="self"/>
+    <title>ユーザ</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.address" rel="self"/>
+    <title>住所</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.birthday" rel="self"/>
+    <title>生年月日</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.check" rel="self"/>
+    <title>チェック</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.check_box" rel="self"/>
+    <title>使わない</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.email" rel="self"/>
+    <title>メール</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.gender" rel="self"/>
+    <title>性別</title>
+  </entry>
+  <entry>
+    <content></content>
+    <link href="/_settings/template_property/user.height" rel="self"/>
+    <title>身長</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.job" rel="self"/>
+    <title>職業</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.memo" rel="self"/>
+    <title>メモ</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.name" rel="self"/>
+    <title>名前</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.select" rel="self"/>
+    <title>セレクト</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.select_box" rel="self"/>
+    <title>未使用</title>
+  </entry>
+  <entry>
+    <link href="/_settings/template_property/user.weight" rel="self"/>
+    <title>体重</title>
+  </entry>
+</feed>

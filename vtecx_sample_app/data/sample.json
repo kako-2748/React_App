@@ -1,0 +1,12 @@
+[{
+    "user": {
+      "name": "bar",
+      "email": "bar@vte.cx"
+   },
+    "link": [
+        {
+            "___href": "/foo/2",
+            "___rel": "self"
+        }
+    ]
+  }]
