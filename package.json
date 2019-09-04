@@ -11,7 +11,8 @@
     "@types/react-router-dom": "^4.3.5",
     "eslint": "^6.0.1",
     "npm": "^6.10.0",
-    "react-router-dom": "^5.0.1"
+    "react-router-dom": "^4.4.0-beta.8",
+    "use-react-router": "^1.0.7"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
