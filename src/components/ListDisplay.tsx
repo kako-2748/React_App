@@ -5,16 +5,16 @@ import { withRouter } from 'react-router-dom'
 
 
 const ListDisplay = (props:any) => {
-    const [entry, setEntry]:any = useState({user:{}})
+    const [entry, setEntry]:any = useState(JSON.stringify([{user:{}}]))
     
     const getdata = async () => {
       try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-        const res = await axios.get('/d/foo/1?e')
+        const res = await axios.get('/d/foo?f')
         if(res.status === 200) {
-          setEntry(res.data)
+          setEntry(JSON.stringify(res.data))  
         }
-      } catch  {
+      } catch {
         alert('データの取得に失敗しました')
       }
     }
@@ -22,10 +22,11 @@ const ListDisplay = (props:any) => {
     useEffect(() => {
         getdata()
       },[])
-    
+    const list = JSON.parse(entry)
+
     return ( 
       <div>
-       {entry ? 
+       {list && list[0].user ? 
         <div>
           <table>
               <caption>一覧画面</caption>
@@ -35,53 +36,53 @@ const ListDisplay = (props:any) => {
               </tr>
               <tr>
                   <td>名前</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.name}})}>
-                  { entry.user.name === '' ? '登録されていません': entry.user.name}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.name}})}>
+                  { list[0].user.name === '' ? '登録されていません': list[0].user.name}</a></td>
               </tr>
               <tr>
                   <td>メールアドレス</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.email}})}>
-                  {entry.user.email　=== '' ? '登録されていません': entry.user.email}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.email}})}>
+                  {list[0].user.email　=== '' ? '登録されていません': list[0].user.email}</a></td>
               </tr>
               <tr>
                   <td>職業</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.job}})}>
-                  {entry.user.job === '' ? '登録されていません': entry.user.job}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.job}})}>
+                  {list[0].user.job === '' ? '登録されていません': list[0].user.job}</a></td>
               </tr>
               <tr>
                   <td>住所</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.address}})}>
-                  {entry.user.address === '' ? '登録されていません': entry.user.address}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.address}})}>
+                  {list[0].user.address === '' ? '登録されていません': list[0].user.address}</a></td>
               </tr>
               <tr>
                   <td>身長</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.height}})}>
-                  {entry.user.height === '' ? '登録されていません': entry.user.height}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.height}})}>
+                  {list[0].user.height === '' ? '登録されていません': list[0].user.height}</a></td>
               </tr>
               <tr>
                   <td>誕生日</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.birthday}})}>
-                  {entry.user.birthday === '' ? '登録されていません': entry.user.birthday}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.birthday}})}>
+                  {list[0].user.birthday === '' ? '登録されていません': list[0].user.birthday}</a></td>
               </tr>
               <tr>
                   <td>性別</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.gender}})}>
-                  {entry.user.gender === '' ? '登録されていません': entry.user.gender}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.gender}})}>
+                  {list[0].user.gender === '' ? '登録されていません': list[0].user.gender}</a></td>
               </tr>
               <tr>
                   <td>チェックボックス</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.check}})}>
-                  {entry.user.check === '' ? '登録されていません': entry.user.check}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.check}})}>
+                  {list[0].user.check === '' ? '登録されていません': list[0].user.check}</a></td>
               </tr>
               <tr>
                   <td>セレクトボックス</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.select}})}>
-                  {entry.user.select === '' ? '登録されていません': entry.user.select}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.select}})}>
+                  {list[0].user.select === '' ? '登録されていません': list[0].user.select}</a></td>
               </tr>
               <tr>
                   <td>メモ</td>
-                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:entry.user.memo}})}>
-                  {entry.user.memo === '' ? '登録されていません': entry.user.memo}</a></td>
+                  <td><a onClick={() => props.history.push({pathname: '/ProfEdit', state: {text:list[0].user.memo}})}>
+                  {list[0].user.memo === '' ? '登録されていません': list[0].user.memo}</a></td>
               </tr>
           </table>
         <button onClick={() => props.history.push('/register')}>新規登録</button>
