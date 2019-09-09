@@ -4,19 +4,33 @@ import { withRouter} from 'react-router-dom'
 import axios from 'axios'
 
 /*
-編集画面に「更新」ボタンを押下し、データを更新する。成功時に一覧画面に遷移する。一覧には編集後のデータが表示されていること
-失敗時にはエラー内容をalertで表示すること
-一覧から任意のデータを選択し、「削除」ボタンを押下することでそのデータを削除する。
 削除成功時には削除後の一覧が表示されること
 */
 
 const ProfEdit = (props:any) => {
-    const [text, setText] = useState(props.history.location.state.text)
+    const editText = props.history.location.state.text
+    const userdata = props.history.location.data
+    const editdata = props.history.location.title
+    const [text, setText] = useState(editText)
+    console.log('userdata',userdata)
+    console.log('editText', editText)
+    console.log('editdata', editdata)
+
   console.log(props)
    const req: VtecxApp.Entry[] = [
       {    
+          
           user:{
-              name: name,
+              name: editdata === 'name' ? text: userdata.name,
+              email: editdata === 'email' ? text: userdata.email,
+              memo: editdata === 'memo' ? text:userdata.memo,
+              gender: editdata === 'gender' ? text: userdata.gender,
+              job: editdata === 'job' ? text: userdata.job,
+              birthday: editdata === 'birthday' ? text: userdata.birthday,
+              address: editdata === 'address' ? text: userdata.address,
+              height: editdata === 'height' ? text: userdata.height,
+              select: editdata === 'select' ? text: userdata.select,
+              check: editdata === 'check' ? text: userdata.check
           },
           link: [
               {
@@ -38,11 +52,16 @@ const ProfEdit = (props:any) => {
         alert('更新に失敗しました')
       }
     }
+    const deletedata = () => {
+      setText(editText.filter((event:any) => event.id) )
+      putdata()
+    }
+    console.log('text', text)
      return (
      <div>
        <b>編集画面</b> <br />
        <input type="text" value={text} onChange={(e:any) => setText(e.target.value)} />
-       <button>削除</button>
+       <button onClick={deletedata}>削除</button>
        <button onClick={putdata}>更新</button>
      </div>
      )
