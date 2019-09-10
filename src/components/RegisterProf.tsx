@@ -15,33 +15,38 @@ const RegisterProf = (props:any) =>  {
     const [selectBox, setSelectBox] = useState('')
     const [checkBox, setCheckBox]  = useState('')
 
-    const req: VtecxApp.Entry[] = [
-        {    
-            user:{
-                name: name,
-                email: email,
-                memo: memo,
-                gender: gender,
-                job: job,
-                birthday: birthday,
-                address: address,
-                height: height,
-                select: selectBox,
-                check: checkBox
-            },
-            link: [
-                {
-                    "___href": "/foo/1",
-                    "___rel": "self"
-                }
-            ]
-        }
-    ]
+    
   
     const putdata = async () => {
+      
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-          const res = await axios.put('/d/foo',req)
+         // PUT /d/?_addids={加算数}
+         const count = await axios.put('/d/foo?_addids=1')
+         const req: VtecxApp.Entry[] = [
+          {    
+              user:{
+                  name: name,
+                  email: email,
+                  memo: memo,
+                  gender: gender,
+                  job: job,
+                  birthday: birthday,
+                  address: address,
+                  height: height,
+                  select: selectBox,
+                  check: checkBox
+              },
+              link: [
+                  {
+                      "___href": "/foo/"+ count.data.feed.title,
+                      "___rel": "self"
+                  }
+              ]
+          }
+      ]
+         console.log(count)
+          const res = await axios.post('/d/',req)
           {props.history.push('/')}
           console.log(res)
           alert('登録しました')

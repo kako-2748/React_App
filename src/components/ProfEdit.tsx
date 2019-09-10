@@ -12,25 +12,26 @@ const ProfEdit = (props:any) => {
     const userdata = props.history.location.data
     const editdata = props.history.location.title
     const [text, setText] = useState(editText)
+
     console.log('userdata',userdata)
     console.log('editText', editText)
     console.log('editdata', editdata)
 
-  console.log(props)
+ 
    const req: VtecxApp.Entry[] = [
       {    
           
           user:{
-              name: editdata === 'name' ? text: userdata.name,
-              email: editdata === 'email' ? text: userdata.email,
-              memo: editdata === 'memo' ? text:userdata.memo,
-              gender: editdata === 'gender' ? text: userdata.gender,
-              job: editdata === 'job' ? text: userdata.job,
-              birthday: editdata === 'birthday' ? text: userdata.birthday,
-              address: editdata === 'address' ? text: userdata.address,
-              height: editdata === 'height' ? text: userdata.height,
-              select: editdata === 'select' ? text: userdata.select,
-              check: editdata === 'check' ? text: userdata.check
+              name: '',
+              email: '',
+              memo: '',
+              gender: '',
+              job: '',
+              birthday: '',
+              address: '',
+              height: '',
+              select: '',
+              check: '',
           },
           link: [
               {
