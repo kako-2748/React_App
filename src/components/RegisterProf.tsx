@@ -21,7 +21,6 @@ const RegisterProf = (props:any) =>  {
       
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-         // PUT /d/?_addids={加算数}
          const count = await axios.put('/d/foo?_addids=1')
          const req: VtecxApp.Entry[] = [
           {    
