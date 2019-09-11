@@ -71,7 +71,7 @@ const RegisterProf = (props:any) =>  {
     )
   }
   
-  const TextComponent = (_props:any) => {
+  export const TextComponent = (_props:any) => {
     return (
         <form>
             <input type="text" placeholder={_props.title} name={_props.value} value={_props.value} onChange={(e:any) => _props.onChange(e.target.value)}　/><br />
@@ -79,7 +79,7 @@ const RegisterProf = (props:any) =>  {
     )
   }
 
-  const DateComponent = (_props:any) => {
+  export const DateComponent = (_props:any) => {
       return (
           <form>
             <label htmlFor="calendar">生年月日:</label><br />
@@ -88,24 +88,24 @@ const RegisterProf = (props:any) =>  {
       )
   }
   
-  const RadioComponent = (_props:any) => {
+  export const RadioComponent = (_props:any) => {
     return (
         <form>
-          <input type="radio" name={_props.value} onChange={ _props.onChange('男')}/><label htmlFor="gender">男</label>
-          <input type="radio" name={_props.value} onChange={ _props.onChange('女')} /><label htmlFor="gender">女</label><br />
+          <input type="radio" name='gender' onChange={() => _props.onChange('男')} checked={_props.value === '男' && true} /><label htmlFor="gender">男</label>
+          <input type="radio" name='gender' onChange={() => _props.onChange('女')} checked={_props.value === '女' && true} /><label htmlFor="gender">女</label><br />
         </form>
     )
   }
-  const CheckComponent = (_props:any) => {
+  export const CheckComponent = (_props:any) => {
     return (
          <form>
-          <input type="checkbox" name={_props.value} onChange={_props.onChange('チェック1')} />チェック１
-          <input type="checkbox" name={_props.value} onChange={_props.onChange('チェック2')} />チェック2
-          <input type="checkbox" name={_props.value} onChange={_props.onChange('チェック3')} />チェック3<br />
+          <input type="checkbox" name={_props.value} onChange={() => _props.onChange('チェック1')} checked={_props.value === 'チェック1' && true} />チェック１
+          <input type="checkbox" name={_props.value} onChange={() => _props.onChange('チェック2')} checked={_props.value === 'チェック2' && true}/>チェック2
+          <input type="checkbox" name={_props.value} onChange={() => _props.onChange('チェック3')} checked={_props.value === 'チェック3' && true}/>チェック3<br />
          </form>
     )
   }
-  const SelectComponent = (_props:any) => {
+  export const SelectComponent = (_props:any) => {
     return (
         <form>
          <select value={_props.value} onChange={(e:any) => _props.onChange(e.target.value)}>
@@ -116,7 +116,7 @@ const RegisterProf = (props:any) =>  {
         </form>
     )
   }
-  const TextareaComponent = (_props:any) => {
+  export const TextareaComponent = (_props:any) => {
     return (
         <form>
           <textarea name={_props.value} value={_props.value} onChange={(e:any) => _props.onChange(e.target.value)} placeholder="メモ"></textarea><br /> 
@@ -129,5 +129,6 @@ const ButtonComponent = (_props:any) => {
             <button onClick={_props.value}>登録</button>
         </form>
     )
-}
+} 
+  
   export default withRouter(RegisterProf)

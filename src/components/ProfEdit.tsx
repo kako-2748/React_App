@@ -1,18 +1,14 @@
 import * as React from 'react'
 import {useState} from 'react'
-import { withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import axios from 'axios'
-
+import {TextComponent, DateComponent, RadioComponent, CheckComponent, SelectComponent, TextareaComponent} from './RegisterProf'
 const ProfEdit = (props:any) => {
     const editText = props.history.location.state.text
     const userdata = props.history.location.data
     const editData = props.history.location.title
     const dataId = userdata.link[0]
     const [text, setText] = useState(editText)
-
-    console.log('userdata',userdata)
-    console.log('editText', editText)
-    console.log('title',editData)
     
   const putdata = async () => {
       try {
@@ -56,42 +52,24 @@ const ProfEdit = (props:any) => {
      <div>
        <b>編集画面</b> <br />
        {props.history.location.type === 'text' &&
-         <input type="text" value={text} onChange={(e:any) => setText(e.target.value)} />
+         <TextComponent value={text} onChange={setText} />
        }
        { editData === 'gender' &&
-        <form>
-         <input type="radio" name="gender" value={text} onChange={() => setText('男')} /><label htmlFor="gender">男</label>
-         <input type="radio" name="gender" value={text} onChange={() => setText('女')} /><label htmlFor="gender">女</label>
-        </form>
+        <RadioComponent value={text} onChange={setText}/>
        }
 
        { editData === 'birthday' &&
-       <form>
-        <label htmlFor="calendar">生年月日:</label><br />
-        <input type="date" max="9999-12-31" value={text} onChange={(e:any) => setText(e.target.value)} /><br />
-       </form>
+       <DateComponent value={text} onChange={setText}/>
       }
        
      { editData === 'check' &&
-       <form>
-        <input type="checkbox" name='check' onChange={() => setText('チェック1')} />チェック１
-        <input type="checkbox" name='check' onChange={() => setText('チェック2')} />チェック2
-        <input type="checkbox" name='check' onChange={() => setText('チェック3')} />チェック3<br />
-      </form>
+       <CheckComponent value={text} onChange={setText} />
       }
      { editData === 'select' &&
-        <form>
-         <select value={text} onChange={(e:any) => setText(e.target.value)}>
-            <option value="サンプル１">サンプル１</option>
-            <option value="サンプル２">サンプル２</option>
-            <option value="サンプル３">サンプル３</option>
-        </select>
-       </form>
+        <SelectComponent value={text} onChange={setText} />
     } 
     { editData === 'memo' &&
-      <form>
-      <textarea  value={text} onChange={(e:any) => setText(e.target.value)} placeholder="メモ"></textarea><br /> 
-    </form>
+     <TextareaComponent value={text} onChange={setText} />
     }
        <button onClick={putdata}>更新</button>
      </div>

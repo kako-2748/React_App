@@ -5,15 +5,12 @@ import { withRouter } from 'react-router-dom'
 
 const ListDisplay = (props:any) => {
     const [entry, setEntry]:any = useState([])
-    
+    console.log('props',props)
     const getdata = async () => {
       try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         const res = await axios.get('/d/foo?f')
-       
-        if(res.status === 200) {
           setEntry(res.data)
-        }
       } catch {
         alert('データの取得に失敗しました')
       }
@@ -22,12 +19,12 @@ const ListDisplay = (props:any) => {
         getdata()
         
       },[])
-      
-     
-      const deletedata = async () => {
+
+      const deletedata = async (index:number) => {
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-          const getId = entry[0].link[0].___href
+          console.log(entry)
+          const getId = entry[index].link[0].___href
           const res = await axios.delete('/d'+ getId)
           console.log('res', res)
           getdata()
@@ -56,7 +53,7 @@ const ListDisplay = (props:any) => {
                   <th>メモ</th>
               </tr>
             
-                {entry.map((value:any) => (
+                {entry.map((value:any, index:number) => (
               <tr>   
                   
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
@@ -98,7 +95,7 @@ const ListDisplay = (props:any) => {
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
                      state: {text:value.user.memo},data: value, title: 'memo'})}>
                      {value.user.memo}</a></td>
-                     <td><button onClick={deletedata}>削除</button></td>
+                     <td><button onClick={() => deletedata(index)}>削除</button></td>
               </tr>
                 ))} 
           </table>
