@@ -15,8 +15,6 @@ const RegisterProf = (props:any) =>  {
     const [selectBox, setSelectBox] = useState('')
     const [checkBox, setCheckBox]  = useState('')
 
-    
-  
     const putdata = async () => {
       
         try {
@@ -133,4 +131,3 @@ const ButtonComponent = (_props:any) => {
     )
 }
   export default withRouter(RegisterProf)
-  

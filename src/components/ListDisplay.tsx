@@ -10,7 +10,7 @@ const ListDisplay = (props:any) => {
       try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         const res = await axios.get('/d/foo?f')
-        console.log(res)
+       
         if(res.status === 200) {
           setEntry(res.data)
         }
@@ -22,6 +22,22 @@ const ListDisplay = (props:any) => {
         getdata()
         
       },[])
+      
+     
+      const deletedata = async () => {
+        try {
+          axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+          const getId = entry[0].link[0].___href
+          const res = await axios.delete('/d'+ getId)
+          console.log('res', res)
+          getdata()
+          
+          alert('削除しました')
+        } catch (e) {
+          alert('削除できませんでした')
+        }
+      }
+     
         return ( 
        
         <div>
@@ -44,23 +60,23 @@ const ListDisplay = (props:any) => {
               <tr>   
                   
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
-                     state: {text:value.user.name,data: value, title: 'name'}})}>
+                     state: {text:value.user.name}, data: value, title: 'name', type: 'text'})}>
                      {value.user.name}</a></td>
                  
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
-                    state: {text:value.user.email},data: value, title: 'email'})}>
+                    state: {text:value.user.email},data: value, title: 'email', type: 'text'})}>
                     {value.user.email}</a></td>
                   
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
-                     state: {text:value.user.job},data: value, title:'job'})}>
+                     state: {text:value.user.job},data: value, title:'job', type: 'text'})}>
                      {value.user.job}</a></td>
                
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
-                     state: {text:value.user.address},data: value, title: 'address'})}>
+                     state: {text:value.user.address},data: value, title: 'address', type: 'text'})}>
                      {value.user.address}</a></td>
                   
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
-                     state: {text:value.user.height},data: value, title: 'height'})}>
+                     state: {text:value.user.height},data: value, title: 'height', type: 'text'})}>
                      {value.user.height}</a></td>
                   
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
@@ -82,8 +98,9 @@ const ListDisplay = (props:any) => {
                     <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
                      state: {text:value.user.memo},data: value, title: 'memo'})}>
                      {value.user.memo}</a></td>
+                     <td><button onClick={deletedata}>削除</button></td>
               </tr>
-                ))}
+                ))} 
           </table>
           :
            <p>登録されていません</p>
