@@ -3,9 +3,8 @@ import { useState, useEffect,} from 'react'
 import axios from 'axios'
 import { withRouter } from 'react-router-dom'
 
-const ListDisplay = (props:any) => {
-    const [entry, setEntry]:any = useState([])
-    console.log('props',props)
+const ListProf = (props:any) => {
+    const [entry, setEntry] = useState<VtecxApp.Entry[]>([])
     const getdata = async () => {
       try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
@@ -20,16 +19,17 @@ const ListDisplay = (props:any) => {
         
       },[])
 
-      const deletedata = async (index:number) => {
+      const deletedata = async (entry:VtecxApp.Entry) => {
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-          console.log(entry)
-          const getId = entry[index].link[0].___href
-          const res = await axios.delete('/d'+ getId)
-          console.log('res', res)
-          getdata()
-          
+          if(entry && entry.link) {
+             const key = entry.link[0].___href 
+             const res = await axios.delete('/d'+ key)
+             console.log(res)
+             getdata()
+          }
           alert('削除しました')
+          
         } catch (e) {
           alert('削除できませんでした')
         }
@@ -53,60 +53,60 @@ const ListDisplay = (props:any) => {
                   <th>メモ</th>
               </tr>
             
-                {entry.map((value:any, index:number) => (
+                {entry.map((value:any) => (
               <tr>   
                   
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.name}, data: value, title: 'name', type: 'text'})}>
                      {value.user.name}</a></td>
                  
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                     state: {text:value.user.email},data: value, title: 'email', type: 'text'})}>
                     {value.user.email}</a></td>
                   
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.job},data: value, title:'job', type: 'text'})}>
                      {value.user.job}</a></td>
                
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.address},data: value, title: 'address', type: 'text'})}>
                      {value.user.address}</a></td>
                   
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.height},data: value, title: 'height', type: 'text'})}>
                      {value.user.height}</a></td>
                   
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.birthday},data: value, title: 'birthday'})}>
                      {value.user.birthday}</a></td>
                    
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.gender},data: value, title: 'gender'})}>
                      {value.user.gender}</a></td>
                   
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.check},data: value, title: 'check'})}>
                      {value.user.check}</a></td>
                
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.select},data: value, title: 'select'})}>
                      {value.user.select}</a></td>
                    
-                    <td><a onClick={() => props.history.push({pathname: '/ProfEdit',
+                    <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:value.user.memo},data: value, title: 'memo'})}>
                      {value.user.memo}</a></td>
-                     <td><button onClick={() => deletedata(index)}>削除</button></td>
+                     <td><button onClick={() => deletedata(value)}>削除</button></td>
               </tr>
                 ))} 
           </table>
           :
            <p>登録されていません</p>
           }
-          <button onClick={() => props.history.push('/register')}>新規登録</button>
+          <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
                   
              
          </div>     
     )
   }
 
-  export default withRouter(ListDisplay)
+  export default withRouter(ListProf)

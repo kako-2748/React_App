@@ -2,17 +2,17 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { Route, Switch, HashRouter} from 'react-router-dom'
 import RegisterProf from './RegisterProf'
-import ListDisplay from './ListDisplay'
-import ProfEdit from './ProfEdit'
+import ListProf from './ListProf'
+import EditProf from './EditProf'
 
 const App = () => {
   return(
 
     <HashRouter>
         <Switch>
-            <Route exact path = '/' component = { ListDisplay } />
-            <Route path = '/register' component = { RegisterProf } />
-            <Route path = '/ProfEdit' component = { ProfEdit } />
+            <Route exact path = '/' component = { ListProf } />
+            <Route path = '/RegisterProf' component = { RegisterProf } />
+            <Route path = '/EditProf' component = { EditProf　} />
         </Switch>
     </HashRouter>
   )
