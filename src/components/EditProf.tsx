@@ -9,7 +9,7 @@ const EditProf = (props:any) => {
     const input_key = input_user.link[0].___href
     const [text, setText] = useState(props.history.location.state.text)
     
-  const putdata = async () => {
+  const putValue = async () => {
       try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         const req: VtecxApp.Entry[] = [
@@ -56,7 +56,7 @@ const EditProf = (props:any) => {
       { input_value === 'check' && <CheckComponent value={text} onChange={setText} />}
       { input_value === 'select' && <SelectComponent value={text} onChange={setText} />} 
       { input_value === 'memo' &&<TextareaComponent value={text} onChange={setText} />}
-      <button onClick={putdata}>更新</button>
+      <button onClick={putValue}>更新</button>
      </div>
      )
    }
