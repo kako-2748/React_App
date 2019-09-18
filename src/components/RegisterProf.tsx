@@ -15,7 +15,7 @@ const RegisterProf = (props:any) => {
     const [selectBox, setSelectBox] = useState('')
     const [checkBox, setCheckBox]  = useState('')
 
-    const putValue = async () => {
+    const putFeed = async () => {
       
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
@@ -66,7 +66,7 @@ const RegisterProf = (props:any) => {
          <CheckComponent value={checkBox} onChange={setCheckBox} />
          <SelectComponent value={selectBox} onChange={setSelectBox} />
          <TextareaComponent value={memo} onChange={setMemo} />
-         <ButtonComponent value={putValue} />
+         <ButtonComponent value={putFeed} />
       </form>
     )
   }

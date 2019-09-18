@@ -5,7 +5,7 @@ import { withRouter } from 'react-router-dom'
 
 const ListProf = (props:any) => {
     const [feed, setfeed] = useState<VtecxApp.Entry[]>([])
-    const getValue = async () => {
+    const getFeed = async () => {
       try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         const res = await axios.get('/d/foo?f')
@@ -15,18 +15,18 @@ const ListProf = (props:any) => {
       }
     }
     useEffect(() => {
-        getValue()
+        getFeed()
         
       },[])
 
-      const deleteValue = async (feed:VtecxApp.Entry) => {
+      const deleteEntry = async (entry:VtecxApp.Entry) => {
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-          if(feed && feed.link) {
-             const key = feed.link[0].___href 
+          if(entry && entry.link) {
+             const key = entry.link[0].___href 
              const res = await axios.delete('/d'+ key)
              console.log(res)
-             getValue()
+             getFeed()
           }
           alert('削除しました')
           
@@ -53,7 +53,7 @@ const ListProf = (props:any) => {
                   <th>メモ</th>
               </tr>
             
-                {feed.map((entry:VtecxApp.Entry) => (
+                {feed.map((entry) => (
               <tr>   
                   
                     <td><a onClick={() => props.history.push({pathname: '/EditProf',
@@ -95,7 +95,7 @@ const ListProf = (props:any) => {
                     <td><a onClick={() => props.history.push({pathname: '/EditProf',
                      state: {text:entry.user!.memo},data: entry, title: 'memo'})}>
                      {entry.user!.memo}</a></td>
-                     <td><button onClick={() => deleteValue(entry)}>削除</button></td>
+                     <td><button onClick={() => deleteEntry(entry)}>削除</button></td>
               </tr>
                 ))} 
           </table>
