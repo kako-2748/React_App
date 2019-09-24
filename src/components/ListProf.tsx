@@ -5,40 +5,53 @@ import { withRouter } from 'react-router-dom'
 
 const ListProf = (props:any) => {
     const [feed, setfeed] = useState<VtecxApp.Entry[]>([])
-    const getFeed = async () => {
-      try {
-        axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-        const res = await axios.get('/d/foo?f')
-          setfeed(res.data)
-      } catch {
-        alert('データの取得に失敗しました')
-      }
-    }
-    useEffect(() => {
-        getFeed()
-        
-      },[])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [feedLength, setFeedLength] = useState(0)
 
-      const deleteEntry = async (entry:VtecxApp.Entry) => {
+  　const deleteEntry = async (entry:VtecxApp.Entry) => {
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
           if(entry && entry.link) {
              const key = entry.link[0].___href 
              const res = await axios.delete('/d'+ key)
              console.log(res)
-             getFeed()
+             pagination()
           }
           alert('削除しました')
-          
+
         } catch (e) {
           alert('削除できませんでした')
         }
       }
-     
+    
+      const pagination = async() => {
+        try {
+          const maxPage = Math.ceil(feedLength / 5)
+          console.log('maxPage',maxPage)
+
+          axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+          const getFeedLength = await axios.get('/d/foo?f&c&l=*')
+          setFeedLength(getFeedLength.data.feed.title)
+          await axios.get('/d/foo?f&_pagination=4')
+          const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+          setfeed(res.data)
+
+        } catch {
+
+          alert('データがありません')
+        }
+      }
+
+      useEffect(() => {
+        pagination()
+          
+        },[currentPage])
+        
         return ( 
        
         <div>
           { feed.length > 0 ? 
+          <div>
           <table>
               <tr>
                   <th>名前</th>
@@ -99,11 +112,24 @@ const ListProf = (props:any) => {
               </tr>
                 ))} 
           </table>
+          <b>総件数:{feedLength}</b><br />
+          <b>現在のページ:{currentPage}</b>
+          <ul>
+            <li><a href="javascript:void(0)"
+            onClick={() => currentPage === 1 ? null: setCurrentPage(1)}>最初</a></li>
+            <li><a href="javascript:void(0)"
+            onClick={() => currentPage === 1 ? null: setCurrentPage(currentPage - 1)}>前へ</a></li>
+            <li><a href="javascript:void(0)" 
+            onClick={() => currentPage === 4 ? null: setCurrentPage(currentPage + 1)} >次へ</a></li>
+            <li><a href="javascript:void(0)"
+            onClick={() => currentPage === 4 ? null: setCurrentPage(maxPage)}>最後</a></li>
+          </ul>
+
+          </div>
           :
            <p>登録されていません</p>
           }
           <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
-                  
              
          </div>     
     )
