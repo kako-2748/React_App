@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect,} from 'react'
+import { useState, useEffect, useMemo} from 'react'
 import axios from 'axios'
 import { withRouter } from 'react-router-dom'
 
@@ -8,11 +8,12 @@ const ListProf = (props:any) => {
     const [currentPage, setCurrentPage] = useState(1)
     const [feedLength, setFeedLength] = useState(0)
 
+    //削除関数
   　const deleteEntry = async (entry:VtecxApp.Entry) => {
         try {
           axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
           if(entry && entry.link) {
-             const key = entry.link[0].___href 
+             const key = entry.link[0].___href
              const res = await axios.delete('/d'+ key)
              console.log(res)
              pagination()
@@ -23,31 +24,46 @@ const ListProf = (props:any) => {
           alert('削除できませんでした')
         }
       }
-    
+
+      //ページネーション関数
       const pagination = async() => {
         try {
-          const maxPage = Math.ceil(feedLength / 5)
-          console.log('maxPage',maxPage)
-
-          axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-          const getFeedLength = await axios.get('/d/foo?f&c&l=*')
-          setFeedLength(getFeedLength.data.feed.title)
-          await axios.get('/d/foo?f&_pagination=4')
-          const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
-          setfeed(res.data)
-
+            axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+            //データの総件数取得
+            const getFeedLength = await axios.get('/d/foo?f&c&l=*')
+            setFeedLength(getFeedLength.data.feed.title)
+            //index作成
+            await axios.get('/d/foo?f&_pagination=1,50&l=5')
+            //currentPageのデータを取得
+            const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+            setfeed(res.data)
+          
         } catch {
-
-          alert('データがありません')
+          alert('データの取得に失敗しました。')
         }
       }
 
-      useEffect(() => {
+      const nextPage = async()  => {
+        try {
+          axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+          const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+          setfeed(res.data)
+        } catch {
+         alert('次のページが取得できませんでした。')
+        }
+      } 
+    　
+      const showPagination = useMemo(() => {
         pagination()
-          
-        },[currentPage])
+      },[])
+
+      //画面表示処理
+      useEffect(() => {
+        showPagination
+        nextPage()
+      },[currentPage])
         
-        return ( 
+       return ( 
        
         <div>
           { feed.length > 0 ? 
@@ -122,7 +138,7 @@ const ListProf = (props:any) => {
             <li><a href="javascript:void(0)" 
             onClick={() => currentPage === 4 ? null: setCurrentPage(currentPage + 1)} >次へ</a></li>
             <li><a href="javascript:void(0)"
-            onClick={() => currentPage === 4 ? null: setCurrentPage(maxPage)}>最後</a></li>
+            onClick={() => currentPage === 4 ? null: setCurrentPage(4)}>最後</a></li>
           </ul>
 
           </div>

@@ -46,7 +46,6 @@ const EditProf = (props:any) => {
     }
 
     
-    console.log('text', text)
      return (
      <div>
       <b>編集画面</b> <br />
