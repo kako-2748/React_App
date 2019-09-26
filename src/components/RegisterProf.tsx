@@ -42,7 +42,7 @@ const RegisterProf = (props:any) => {
               ]
           }
       ]
-         console.log(count)
+         
           const res = await axios.post('/d/',req)
           {props.history.push('/')}
           console.log(res)
