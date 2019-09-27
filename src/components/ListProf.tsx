@@ -4,24 +4,100 @@ import axios from 'axios'
 import { withRouter } from 'react-router-dom'
 
 //ページネーションコンポーネント
-const Pagination = (props:any) => {
+const Pagination = (_props:any) => {
+
+  const showPagination = useMemo(() => {
+    _props.getFeedLength()
+    
+  },[])
+
+  //画面表示処理
+  useEffect(() => {
+    showPagination
+    _props.getPage()
+  },[_props.currentPage])
+
+  return (
+    <div>
+      <b>総件数:{_props.feedLength}</b><br />
+          <b>現在のページ:{_props.currentPage}</b>
+          <ul>
+            <li><a href="javascript:void(0)"
+            onClick={() => _props.currentPage === 1 ? null: _props.setCurrentPage(1)}>最初</a></li>
+            <li><a href="javascript:void(0)"
+            onClick={() => _props.currentPage === 1 ? null: _props.setCurrentPage(_props.currentPage - 1)}>前へ</a></li>
+            <li><a href="javascript:void(0)" 
+            onClick={() => _props.currentPage === _props.lastPage ? null: _props.setCurrentPage(_props.currentPage + 1)} >次へ</a></li>
+            <li><a href="javascript:void(0)"
+            onClick={() => _props.currentPage === _props.lastPage ? null: _props.setCurrentPage(_props.lastPage)}>最後</a></li>
+          </ul>
+   </div>  
+  )
+
+}
+
+//一覧画面
+const ListProf = (props:any) => {
   const [feed, setFeed] = useState<VtecxApp.Entry[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [feedLength, setFeedLength] = useState(0)
   const [lastPage, setLastPage] = useState(1)
+  const [getIndex, setGetIndex] = useState({})
 
   const getFeedLength = async() => {
     try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         //データの総件数取得
         const res = await axios.get('/d/foo?f&c&l=*')
-        setFeedLength(res.data.feed.title)
+        setFeedLength(Number(res.data.feed.title))
+        //index作成
+        const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
+        setGetIndex(index)
+        console.log(index)
+        
+        setLastPage(Number(index.data.feed.title))
         
     } catch {
       alert('データの取得に失敗しました。')
 
     }
+    
  }
+         
+ 
+ console.log('getIndex', getIndex)
+  const getPage = async()  => {
+    try {
+      axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+      const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+      setFeed(res.data)
+      console.log('res',res)
+      console.log('feed',feed)
+      if(getIndex === null) {
+        let count = 0
+        const retryIndex = async() => { 
+          
+          const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
+          setGetIndex(index)
+          setLastPage(Number(index.data.feed.title))
+
+             if(count === 9 || getIndex !== null){
+               
+               clearInterval(loopRetryIndex)
+
+             }
+             count ++
+        
+      
+    }
+      const loopRetryIndex = setInterval(retryIndex,1000)
+    
+      }
+    } catch (e){
+     alert('ページが取得できませんでした。')
+     console.log(e)
+    }
+  } 
 
   //削除関数
   const deleteEntry = async (entry:VtecxApp.Entry) => {
@@ -29,10 +105,9 @@ const Pagination = (props:any) => {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
       if(entry && entry.link) {
          const key = entry.link[0].___href
-         const res = await axios.delete('/d'+ key)
-         console.log(res)
-         getFeedLength()
-         nextPage()
+         await axios.delete('/d'+ key)
+         //getFeedLength()
+         getPage()
       }
       alert('削除しました')
 
@@ -41,150 +116,85 @@ const Pagination = (props:any) => {
 
     }
   }
-
-  const nextPage = async()  => {
-    try {
-      axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-      //indexリクエスト
-      const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
-      setLastPage(Number(index.data.feed.title))
-      if(index.data.feed.title === '0') {
-        
-        let count = 0
-        const retryIndex = async() => { 
-          const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
-          setLastPage(Number(index.data.feed.title))
-
-             if(count === 9 || lastPage > 0){
-               clearInterval(loopRetryIndex)
-               
-             }
-             count ++
-             console.log(count)
-             console.log('index',index)
-             
-        }
-        const loopRetryIndex = setInterval(retryIndex,1000)
-      }
-      const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
-      setFeed(res.data)
-
-    } catch {
-     alert('次のページが取得できませんでした。')
-
-    }
-    
-  } 
-
-  const showPagination = useMemo(() => {
-    getFeedLength()
-    
-  },[])
-
-  //画面表示処理
-  useEffect(() => {
-    nextPage()
-    showPagination
-  },[currentPage])
-
-  console.log('feed',feedLength)
-  console.log('lastPage',lastPage)
-
-  return (
-    <div>
-    { feed.length > 0 ? 
-    <div>
-    <table>
-        <tr>
-            <th>名前</th>
-            <th>メール</th>
-            <th>職業</th>
-            <th>住所</th>
-            <th>身長</th>
-            <th>誕生日</th>
-            <th>性別</th>
-            <th>チェック</th>
-            <th>セレクト</th>
-            <th>メモ</th>
-        </tr>
-      
-          {feed.map((entry) => (
-        <tr>   
-            
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.name}, data: entry, title: 'name', type: 'text'})}>
-               {entry.user!.name}</a></td>
-           
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-              state: {text:entry.user!.email},data: entry, title: 'email', type: 'text'})}>
-              {entry.user!.email}</a></td>
-            
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.job},data: entry, title:'job', type: 'text'})}>
-               {entry.user!.job}</a></td>
-         
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.address},data: entry, title: 'address', type: 'text'})}>
-               {entry.user!.address}</a></td>
-            
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.height},data: entry, title: 'height', type: 'text'})}>
-               {entry.user!.height}</a></td>
-            
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.birthday},data: entry, title: 'birthday'})}>
-               {entry.user!.birthday}</a></td>
-             
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.gender},data: entry, title: 'gender'})}>
-               {entry.user!.gender}</a></td>
-            
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.check},data: entry, title: 'check'})}>
-               {entry.user!.check}</a></td>
-         
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.select},data: entry, title: 'select'})}>
-               {entry.user!.select}</a></td>
-             
-              <td><a onClick={() => props.value.history.push({pathname: '/EditProf',
-               state: {text:entry.user!.memo},data: entry, title: 'memo'})}>
-               {entry.user!.memo}</a></td>
-               <td><button onClick={() => deleteEntry(entry)}>削除</button></td>
-        </tr>
-          ))} 
-    </table>
-    <b>総件数:{feedLength}</b><br />
-          <b>現在のページ:{currentPage}</b>
-          <ul>
-            <li><a href="javascript:void(0)"
-            onClick={() => currentPage === 1 ? null: setCurrentPage(1)}>最初</a></li>
-            <li><a href="javascript:void(0)"
-            onClick={() => currentPage === 1 ? null: setCurrentPage(currentPage - 1)}>前へ</a></li>
-            <li><a href="javascript:void(0)" 
-            onClick={() => currentPage === lastPage ? null: setCurrentPage(currentPage + 1)} >次へ</a></li>
-            <li><a href="javascript:void(0)"
-            onClick={() => currentPage === lastPage ? null: setCurrentPage(lastPage)}>最後</a></li>
-          </ul>
-    </div>
-    :
-     <p>登録されていません</p>
-    }
-    <button onClick={() => props.value.history.push('/RegisterProf')}>新規登録</button>
-       
-   </div>  
-  )
-
-}
-
-const ListProf = (props:any) => {
-
        return ( 
-       <div>
-         <Pagination value={props}/>
-       </div>
+        <div>
+        { feed.length > 0 ? 
+        <div>
+        <table>
+            <tr>
+                <th>名前</th>
+                <th>メール</th>
+                <th>職業</th>
+                <th>住所</th>
+                <th>身長</th>
+                <th>誕生日</th>
+                <th>性別</th>
+                <th>チェック</th>
+                <th>セレクト</th>
+                <th>メモ</th>
+            </tr>
           
+              {feed.map((entry) => (
+            <tr>   
+                
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.name}, data: entry, title: 'name', type: 'text'})}>
+                   {entry.user!.name}</a></td>
+               
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                  state: {text:entry.user!.email},data: entry, title: 'email', type: 'text'})}>
+                  {entry.user!.email}</a></td>
+                
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.job},data: entry, title:'job', type: 'text'})}>
+                   {entry.user!.job}</a></td>
+             
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.address},data: entry, title: 'address', type: 'text'})}>
+                   {entry.user!.address}</a></td>
+                
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.height},data: entry, title: 'height', type: 'text'})}>
+                   {entry.user!.height}</a></td>
+                
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.birthday},data: entry, title: 'birthday'})}>
+                   {entry.user!.birthday}</a></td>
+                 
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.gender},data: entry, title: 'gender'})}>
+                   {entry.user!.gender}</a></td>
+                
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.check},data: entry, title: 'check'})}>
+                   {entry.user!.check}</a></td>
+             
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.select},data: entry, title: 'select'})}>
+                   {entry.user!.select}</a></td>
+                 
+                  <td><a onClick={() => props.history.push({pathname: '/EditProf',
+                   state: {text:entry.user!.memo},data: entry, title: 'memo'})}>
+                   {entry.user!.memo}</a></td>
+                   <td><button onClick={() => deleteEntry(entry)}>削除</button></td>  
+            </tr>
+              ))} 
+        </table>
+        </div>
+        :
+         <p>登録されていません</p>
+        }
+        <Pagination 
+        setFeed={(e:any) => setFeed(e)}
+        currentPage={currentPage} setCurrentPage={setCurrentPage}
+        feedLength={feedLength} lastPage={lastPage}
+        getPage={() => getPage()} getFeedLength={() => getFeedLength()}
+         />
+        <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
+       </div> 
     )
   }
-
   export default withRouter(ListProf)
+
+
+
