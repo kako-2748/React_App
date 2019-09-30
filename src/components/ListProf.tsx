@@ -7,14 +7,14 @@ import { withRouter } from 'react-router-dom'
 const Pagination = (_props:any) => {
 
   const showPagination = useMemo(() => {
-    _props.getFeedLength()
-    
+    _props.getFeedLength() 
   },[])
 
   //画面表示処理
   useEffect(() => {
     showPagination
     _props.getPage()
+   
   },[_props.currentPage])
 
   return (
@@ -40,9 +40,9 @@ const Pagination = (_props:any) => {
 const ListProf = (props:any) => {
   const [feed, setFeed] = useState<VtecxApp.Entry[]>([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [resdata, setResdata] = useState()
   const [feedLength, setFeedLength] = useState(0)
   const [lastPage, setLastPage] = useState(1)
-  const [getIndex, setGetIndex] = useState({})
 
   const getFeedLength = async() => {
     try {
@@ -52,52 +52,44 @@ const ListProf = (props:any) => {
         setFeedLength(Number(res.data.feed.title))
         //index作成
         const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
-        setGetIndex(index)
-        console.log(index)
-        
         setLastPage(Number(index.data.feed.title))
         
     } catch {
       alert('データの取得に失敗しました。')
 
     }
-    
  }
          
- 
- console.log('getIndex', getIndex)
   const getPage = async()  => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
       const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
       setFeed(res.data)
-      console.log('res',res)
-      console.log('feed',feed)
-      if(getIndex === null) {
-        let count = 0
-        const retryIndex = async() => { 
-          
-          const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
-          setGetIndex(index)
-          setLastPage(Number(index.data.feed.title))
+      setResdata(res)
 
-             if(count === 9 || getIndex !== null){
-               
-               clearInterval(loopRetryIndex)
-
-             }
-             count ++
-        
-      
-    }
-      const loopRetryIndex = setInterval(retryIndex,1000)
-    
-      }
-    } catch (e){
+    } catch {
      alert('ページが取得できませんでした。')
-     console.log(e)
-    }
+    
+     if(resdata === undefined || resdata.status === 400) {
+      let count = 0
+      const retryIndex = async() => { 
+        axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+        const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
+        setLastPage(Number(index.data.feed.title))
+        const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+        setFeed(res.data)
+        setResdata(res)
+        count++
+        
+        if(count > 9 || res.status === 200) {
+             clearInterval(loopRetryIndex)
+           
+           } 
+      }
+    const loopRetryIndex = setInterval(retryIndex,1000) 
   } 
+ }
+}
 
   //削除関数
   const deleteEntry = async (entry:VtecxApp.Entry) => {
@@ -106,7 +98,7 @@ const ListProf = (props:any) => {
       if(entry && entry.link) {
          const key = entry.link[0].___href
          await axios.delete('/d'+ key)
-         //getFeedLength()
+         getFeedLength()
          getPage()
       }
       alert('削除しました')
@@ -116,6 +108,7 @@ const ListProf = (props:any) => {
 
     }
   }
+ 
        return ( 
         <div>
         { feed.length > 0 ? 
