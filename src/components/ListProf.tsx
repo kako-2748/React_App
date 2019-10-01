@@ -1,66 +1,42 @@
 import * as React from 'react'
-import { useState, useEffect, useMemo} from 'react'
+import { useState, useRef } from 'react'
 import axios from 'axios'
 import { withRouter } from 'react-router-dom'
 
-//ページネーションコンポーネント
-const Pagination = (_props:any) => {
+import Pagination from './Pagination'
 
-  const showPagination = useMemo(() => {
-    _props.getFeedLength() 
-  },[])
-
-  //画面表示処理
-  useEffect(() => {
-    showPagination
-    _props.getPage()
-   
-  },[_props.currentPage])
-
-  return (
-    <div>
-      <b>総件数:{_props.feedLength}</b><br />
-          <b>現在のページ:{_props.currentPage}</b>
-          <ul>
-            <li><a href="javascript:void(0)"
-            onClick={() => _props.currentPage === 1 ? null: _props.setCurrentPage(1)}>最初</a></li>
-            <li><a href="javascript:void(0)"
-            onClick={() => _props.currentPage === 1 ? null: _props.setCurrentPage(_props.currentPage - 1)}>前へ</a></li>
-            <li><a href="javascript:void(0)" 
-            onClick={() => _props.currentPage === _props.lastPage ? null: _props.setCurrentPage(_props.currentPage + 1)} >次へ</a></li>
-            <li><a href="javascript:void(0)"
-            onClick={() => _props.currentPage === _props.lastPage ? null: _props.setCurrentPage(_props.lastPage)}>最後</a></li>
-          </ul>
-   </div>  
-  )
-
-}
+/*
+currentPage、feedLength、lastPageはListProfで使用していないのでPaginationの描画用の変数とすべきです。
+currentPageに関してはListProfでは描画には使用していないので、getPageに引数として渡すだけでいいと思います。
+indexがまだ貼れていないエラーはステータスコードでは判断してはいけないと注意したはずです。
+indexがまだ貼れていないエラーが発生しても、非同期でindexを貼る処理をフレームワーク側で行っています。なので、再度_paginationリクエストをしてはいけません。
+66〜68行目の処理と79〜81行目の処理は同じ処理ですよね？冗長なので一つにまとめてください。
+*/
 
 //一覧画面
 const ListProf = (props:any) => {
   const [feed, setFeed] = useState<VtecxApp.Entry[]>([])
-  const [currentPage, setCurrentPage] = useState(1)
   const [resdata, setResdata] = useState()
-  const [feedLength, setFeedLength] = useState(0)
-  const [lastPage, setLastPage] = useState(1)
 
+  const feedLength = useRef(0)
+  const lastPage = useRef(0)
   const getFeedLength = async() => {
     try {
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         //データの総件数取得
         const res = await axios.get('/d/foo?f&c&l=*')
-        setFeedLength(Number(res.data.feed.title))
+        feedLength.current = (Number(res.data.feed.title))
         //index作成
         const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
-        setLastPage(Number(index.data.feed.title))
-        
+        lastPage.current = (Number(index.data.feed.title))
+         
     } catch {
       alert('データの取得に失敗しました。')
 
     }
  }
-         
-  const getPage = async()  => {
+
+  const getPage = async(currentPage:number)  => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
       const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
@@ -70,18 +46,15 @@ const ListProf = (props:any) => {
     } catch {
      alert('ページが取得できませんでした。')
     
-     if(resdata === undefined || resdata.status === 400) {
+     if(resdata === undefined) {
       let count = 0
       const retryIndex = async() => { 
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-        const index = await axios.get('/d/foo?f&_pagination=1,50&l=5')
-        setLastPage(Number(index.data.feed.title))
-        const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
-        setFeed(res.data)
-        setResdata(res)
+       
+        
         count++
         
-        if(count > 9 || res.status === 200) {
+        if(count > 9 ) {
              clearInterval(loopRetryIndex)
            
            } 
@@ -92,14 +65,15 @@ const ListProf = (props:any) => {
 }
 
   //削除関数
-  const deleteEntry = async (entry:VtecxApp.Entry) => {
+  const deleteEntry = async (entry:VtecxApp.Entry, currentPage:number) => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
       if(entry && entry.link) {
          const key = entry.link[0].___href
          await axios.delete('/d'+ key)
          getFeedLength()
-         getPage()
+         getPage(currentPage)
+         console.log(entry)
       }
       alert('削除しました')
 
@@ -169,7 +143,7 @@ const ListProf = (props:any) => {
                   <td><a onClick={() => props.history.push({pathname: '/EditProf',
                    state: {text:entry.user!.memo},data: entry, title: 'memo'})}>
                    {entry.user!.memo}</a></td>
-                   <td><button onClick={() => deleteEntry(entry)}>削除</button></td>  
+                   <td><button onClick={() => deleteEntry(entry,1)}>削除</button></td>  
             </tr>
               ))} 
         </table>
@@ -177,12 +151,10 @@ const ListProf = (props:any) => {
         :
          <p>登録されていません</p>
         }
-        <Pagination 
-        setFeed={(e:any) => setFeed(e)}
-        currentPage={currentPage} setCurrentPage={setCurrentPage}
-        feedLength={feedLength} lastPage={lastPage}
-        getPage={() => getPage()} getFeedLength={() => getFeedLength()}
-         />
+        <Pagination
+         getPage={(e:any) => getPage(e)} getFeedLength={() => getFeedLength()}
+         feedLength={feedLength.current} lastPage={lastPage.current}
+       />
         <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
        </div> 
     )
