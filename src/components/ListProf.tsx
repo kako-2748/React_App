@@ -5,18 +5,10 @@ import { withRouter } from 'react-router-dom'
 
 import Pagination from './Pagination'
 
-/*
-currentPage、feedLength、lastPageはListProfで使用していないのでPaginationの描画用の変数とすべきです。
-currentPageに関してはListProfでは描画には使用していないので、getPageに引数として渡すだけでいいと思います。
-indexがまだ貼れていないエラーはステータスコードでは判断してはいけないと注意したはずです。
-indexがまだ貼れていないエラーが発生しても、非同期でindexを貼る処理をフレームワーク側で行っています。なので、再度_paginationリクエストをしてはいけません。
-66〜68行目の処理と79〜81行目の処理は同じ処理ですよね？冗長なので一つにまとめてください。
-*/
-
 //一覧画面
 const ListProf = (props:any) => {
+  const [deletedPage, setDeletedPage] = useState(1)
   const [feed, setFeed] = useState<VtecxApp.Entry[]>([])
-  const [resdata, setResdata] = useState()
 
   const feedLength = useRef(0)
   const lastPage = useRef(0)
@@ -35,45 +27,54 @@ const ListProf = (props:any) => {
 
     }
  }
-
-  const getPage = async(currentPage:number)  => {
+ 
+  const getPage = async(currentPage:number, retry_count:number)  => {
+    
     try {
+      //ページの取得
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
       const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
       setFeed(res.data)
-      setResdata(res)
+      console.log(res)
+      
+    } catch(e) {
+      //indexが貼れていなかった場合10回までリトライ
+      if(e.response.data.feed.title === "Please make a pagination index in advance.") {
+        retry_count++
+        const retryIndex = () => { 
+          getPage(currentPage, retry_count)
+      
+        }
+        if(retry_count > 9) {
+          alert('ページが取得できませんでした')
+          return false
+          
+        }else{
+          setTimeout(() => retryIndex(),1000) 
+          
+        }
 
-    } catch {
-     alert('ページが取得できませんでした。')
+      }  
+    } 
     
-     if(resdata === undefined) {
-      let count = 0
-      const retryIndex = async() => { 
-        axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-       
-        
-        count++
-        
-        if(count > 9 ) {
-             clearInterval(loopRetryIndex)
-           
-           } 
-      }
-    const loopRetryIndex = setInterval(retryIndex,1000) 
-  } 
- }
-}
+  }
 
   //削除関数
-  const deleteEntry = async (entry:VtecxApp.Entry, currentPage:number) => {
+  const deleteEntry = async (entry:VtecxApp.Entry, index:number) => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+      
       if(entry && entry.link) {
          const key = entry.link[0].___href
          await axios.delete('/d'+ key)
          getFeedLength()
-         getPage(currentPage)
-         console.log(entry)
+
+         if(index === 0 && deletedPage !== 1){
+           getPage(deletedPage -1, 0)
+         } else {
+           getPage(deletedPage, 0)
+         }
+         
       }
       alert('削除しました')
 
@@ -82,7 +83,7 @@ const ListProf = (props:any) => {
 
     }
   }
- 
+
        return ( 
         <div>
         { feed.length > 0 ? 
@@ -101,9 +102,8 @@ const ListProf = (props:any) => {
                 <th>メモ</th>
             </tr>
           
-              {feed.map((entry) => (
+              {feed.map((entry, index) => (
             <tr>   
-                
                   <td><a onClick={() => props.history.push({pathname: '/EditProf',
                    state: {text:entry.user!.name}, data: entry, title: 'name', type: 'text'})}>
                    {entry.user!.name}</a></td>
@@ -143,7 +143,7 @@ const ListProf = (props:any) => {
                   <td><a onClick={() => props.history.push({pathname: '/EditProf',
                    state: {text:entry.user!.memo},data: entry, title: 'memo'})}>
                    {entry.user!.memo}</a></td>
-                   <td><button onClick={() => deleteEntry(entry,1)}>削除</button></td>  
+                   <td><button onClick={() => deleteEntry(entry, index)}>削除</button></td>  
             </tr>
               ))} 
         </table>
@@ -152,7 +152,8 @@ const ListProf = (props:any) => {
          <p>登録されていません</p>
         }
         <Pagination
-         getPage={(e:any) => getPage(e)} getFeedLength={() => getFeedLength()}
+         setDeletedPage={setDeletedPage}
+         getPage={(e:number) => getPage(e, 0)} getFeedLength={() => getFeedLength()}
          feedLength={feedLength.current} lastPage={lastPage.current}
        />
         <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>

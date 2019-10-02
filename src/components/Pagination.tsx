@@ -12,8 +12,8 @@ const Pagination = (_props:any) => {
     //画面表示処理
     useEffect(() => {
       showPagination
-      _props.getPage(currentPage)
-    
+      _props.getPage(currentPage, 0)
+      _props.setDeletedPage(currentPage)
     },[currentPage])
 
     return (
@@ -22,7 +22,7 @@ const Pagination = (_props:any) => {
             <b>現在のページ:{currentPage}</b>
             <ul>
               <li><a href="javascript:void(0)"
-              onClick={() => currentPage === 1 ? null: setCurrentPage(1)}>最初</a></li>
+              onClick={() => currentPage === 1 ? null: setCurrentPage(1) }>最初</a></li>
               <li><a href="javascript:void(0)"
               onClick={() => currentPage === 1 ? null: setCurrentPage(currentPage - 1)}>前へ</a></li>
               <li><a href="javascript:void(0)" 
