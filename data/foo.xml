@@ -1,4 +1,15 @@
 <entry>
-<title>Hello</title>
-<link rel="self" href="/foo/1" />
+<user>
+<name>あああooああああ</name>
+<email>ssあああああ</email>
+<gender>男</gender>
+<memo>ああああ,,あああ</memo>
+<birthday>2020-01-01</birthday>
+<check>チェック2</check>
+<select>サンプル２</select>
+<job>あああああああ</job>
+<address>v</address>
+<height>あああああああ</height>
+</user>
+<link rel="self" href="/foo/53" />
 </entry>

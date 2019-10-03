@@ -14,7 +14,8 @@
  height
  weight
  select_box
- check_box</content>
+ check_box
+ description</content>
   <contributor>
     <uri>urn:vte.cx:acl:/_group/$admin,CRUD</uri>
   </contributor>
@@ -22,7 +23,17 @@
     <uri>urn:vte.cx:acl:+,R</uri>
   </contributor>
   <link href="/_settings/template" rel="self"/>
-  <rights>
+  <rights>user.name;/foo
+user.email;/foo
+user.gender;/foo
+user.memo;/foo
+user.birthday;/foo
+user.check;/foo
+user.select;/foo
+user.job;/foo
+user.address;/foo
+user.height;/foo
+user.weight;/foo
 </rights>
 </entry>
 <entry>
@@ -49,6 +60,10 @@
     <title>使わない</title>
   </entry>
   <entry>
+    <link href="/_settings/template_property/user.description" rel="self"/>
+    <title></title>
+  </entry>
+  <entry>
     <link href="/_settings/template_property/user.email" rel="self"/>
     <title>メール</title>
   </entry>
@@ -57,7 +72,7 @@
     <title>性別</title>
   </entry>
   <entry>
-    <content></content>
+    <content/>
     <link href="/_settings/template_property/user.height" rel="self"/>
     <title>身長</title>
   </entry>

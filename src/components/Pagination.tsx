@@ -5,15 +5,21 @@ import { useState, useEffect, useMemo} from 'react'
 const Pagination = (_props:any) => {
     const [currentPage, setCurrentPage] = useState(1)
 
-    const showPagination = useMemo(() => {
-      _props.getFeedLength() 
-    },[])
+    const memoPutIndex = useMemo(() => {
+      _props.putIndex(currentPage) 
+    },[currentPage > 50])
   
+    const memoGetFeedLength = useMemo(() => {
+        _props.getFeedLength()
+    },[])
+
     //画面表示処理
     useEffect(() => {
-      showPagination
-      _props.getPage(currentPage, 0)
-      _props.setDeletedPage(currentPage)
+         memoGetFeedLength
+         memoPutIndex
+         _props.getPage(currentPage, 0)
+         _props.setDeletedPage(currentPage)
+        
     },[currentPage])
 
     return (
