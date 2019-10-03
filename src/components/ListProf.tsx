@@ -6,6 +6,9 @@ import { withRouter } from 'react-router-dom'
 import Pagination from './Pagination'
 import SearchList from './SearchList'
 
+/*
+「Please set a positive number for Page number.」が返ってきた場合は1の変数+50のindexを貼る
+*/
 //一覧画面
 const ListProf = (props:any) => {
   const [deletedPage, setDeletedPage] = useState(1)
@@ -19,7 +22,7 @@ const ListProf = (props:any) => {
         //データの総件数取得
         const res = await axios.get('/d/foo?f&c&l=*')
         feedLength.current = (Number(res.data.feed.title))
-        lastPage.current = (Number(res.data.feed.title /5))
+        lastPage.current = (Number(res.data.feed.title /1))
          
     } catch {
       alert('総件数の取得に失敗しました。')
@@ -27,18 +30,31 @@ const ListProf = (props:any) => {
     }
  }
 
-  const putIndex = async(currentPage:number) => {
+  const firstIndexPage = useRef(1)
+  const lastIndexPage = useRef(50)
+  const putIndex = async(currentPage:number, error:string) => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
+      
+      if(currentPage < firstIndexPage.current) {
+        if(firstIndexPage.current !== 1) {
+        firstIndexPage.current = firstIndexPage.current - 50
+        lastIndexPage.current = lastIndexPage.current - 50
+        await axios.get('/d/foo?f&_pagination='+firstIndexPage.current+','+lastIndexPage.current+'&l=1')
 
-      if(currentPage <= 50) {
-        await axios.get('/d/foo?f&_pagination=1,50&l=5')
+        }else{
+          await axios.get('/d/foo?f&_pagination='+firstIndexPage.current+','+lastIndexPage.current+'&l=1')
+
+        }
         
-      } else if(currentPage > 50){
-         await axios.get('/d/foo?f&_pagination=51,100&l=5')
-       
-      }
+      } else if(error === "Please set a positive number for Page number." || currentPage > firstIndexPage.current){
+        console.log(error)
+        firstIndexPage.current = firstIndexPage.current + 50
+        lastIndexPage.current = lastIndexPage.current + 50
+        await axios.get('/d/foo?f&_pagination='+firstIndexPage.current+','+lastIndexPage.current+'&l=1')
 
+      }
+      
     } catch {
       alert('indexが貼れませんでした。')
     }
@@ -49,43 +65,34 @@ const ListProf = (props:any) => {
     try {
       //ページの取得
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-      const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+      const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=1')
       setFeed(res.data)
       
     } catch(e) {
+      const retry = () => {
+        retry_count++
+
+        const retryIndex = () => { 
+          getPage(currentPage, retry_count)
+      
+        }
+        if(retry_count > 9) {
+          alert('ページが取得できませんでした')
+          return false
+          
+        }else{
+          setTimeout(() => retryIndex(),1000) 
+
+        }
+      }
+      
       //indexが貼れていなかった場合10回までリトライ
       if(e.response.data.feed.title === "Please make a pagination index in advance.") {
-        retry_count++
-
-        const retryIndex = () => { 
-          getPage(currentPage, retry_count)
-      
-        }
-        if(retry_count > 9) {
-          alert('ページが取得できませんでした')
-          return false
-          
-        }else{
-          setTimeout(() => retryIndex(),1000) 
-
-        }
+       retry()
       //ページのリクエストが最終番号以降のリクエストが来た時にindexを追加で貼り直す
       } else if(e.response.data.feed.title === "Please set a positive number for Page number.") {
-        putIndex(currentPage)
-        retry_count++
-
-        const retryIndex = () => { 
-          getPage(currentPage, retry_count)
-      
-        }
-        if(retry_count > 9) {
-          alert('ページが取得できませんでした')
-          return false
-          
-        }else{
-          setTimeout(() => retryIndex(),1000) 
-
-        }
+        putIndex(currentPage, e.response.data.feed.title)
+        retry()
       }
 
     } 
@@ -101,7 +108,7 @@ const ListProf = (props:any) => {
          const key = entry.link[0].___href
          await axios.delete('/d'+ key)
          getFeedLength()
-         putIndex(deletedPage)
+         putIndex(deletedPage, '')
 
          if(index === 0 && deletedPage !== 1){
            getPage(deletedPage -1, 0)
@@ -190,7 +197,7 @@ const ListProf = (props:any) => {
         }
         <Pagination
          setDeletedPage={setDeletedPage} getFeedLength={getFeedLength}
-         getPage={(e:number) => getPage(e, 0)} putIndex={(e:number) => putIndex(e)}
+         getPage={(e:number) => getPage(e, 0)} putIndex={(e:number) => putIndex(e, '')}
          feedLength={feedLength.current} lastPage={lastPage.current}
        />
         <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
@@ -198,6 +205,7 @@ const ListProf = (props:any) => {
     )
   }
   export default withRouter(ListProf)
+
 
 
 
