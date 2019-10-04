@@ -6,7 +6,7 @@ const Pagination = (_props:any) => {
     const [currentPage, setCurrentPage] = useState(1)
 
     const memoPutIndex = useMemo(() => {
-      _props.putIndex() 
+      _props.putIndex(currentPage, ) 
     },[currentPage > 50])
   
     const memoGetFeedLength = useMemo(() => {
