@@ -109,6 +109,7 @@ const RegisterProf = (props:any) => {
     return (
         <form>
          <select value={_props.value} onChange={(e:any) => _props.onChange(e.target.value)}>
+            <option disabled selected value="">選択してください</option>
              <option value="サンプル１">サンプル１</option>
              <option value="サンプル２">サンプル２</option>
              <option value="サンプル３">サンプル３</option>

@@ -6,18 +6,18 @@ const Pagination = (_props:any) => {
     const [currentPage, setCurrentPage] = useState(1)
 
     const memoGetFeedLength = useMemo(() => {
-        _props.getFeedLength(_props.text)
+        _props.getFeedLength(_props.text,_props.selectTitle)
     },[])
 
     const memoPutIndex = useMemo(() => {
-        _props.putIndex(currentPage, _props.text) 
+        _props.putIndex(currentPage, _props.text, _props.selectTitle) 
       },[currentPage > _props.lastIndexPage])
 
     //画面表示処理
     useEffect(() => {
        memoGetFeedLength
        memoPutIndex
-       _props.getPage(currentPage, 0, _props.text)
+       _props.getPage(currentPage, 0, _props.text, _props.selectTitle)
        _props.setDeletedPage(currentPage)
         
     },[currentPage])

@@ -12,20 +12,21 @@ const ListProf = (props:any) => {
   const [feed, setFeed] = useState<VtecxApp.Entry[]>([])
   const [firstIndexPage, setFirstIndexPage] = useState(1)
   const [lastIndexPage, setLastIndexPage] = useState(50)
+  const [selectTitle, setSelectTitle] = useState('')
   const [text, setText] = useState('')
 
   const feedLength = useRef(0)
   const lastPage = useRef(0)
   const search_url = useRef('')
 
-  const getFeedLength = async(searchText:string) => {
+  const getFeedLength = async(searchText:string, selectValue:string) => {
     try {
         search_url.current = '/d/foo?f&|user.name-rg-.*'+searchText+'.*'
         +'&|user.email-rg-.*'+searchText+'.*&|user.gender-rg-.*'+searchText+'.*'
         +'&|user.memo-rg-.*'+searchText+'.*&|user.birthday-rg-.*'+searchText+'.*'
         +'&|user.check-rg-.*'+searchText+'.*&|user.select-rg-.*'+searchText+'.*'
         +'&|user.job-rg-.*'+searchText+'.*&|user.address-rg-.*'+searchText+'.*'
-        +'&|user.height-rg-.*'+searchText+'.*&|user.weight-rg-.*'+searchText+'.*'
+        +'&|user.height-rg-.*'+searchText+'.*'
 
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         //データの総件数取得
@@ -34,11 +35,15 @@ const ListProf = (props:any) => {
           feedLength.current = (Number(res.data.feed.title))
           lastPage.current = (Math.ceil(res.data.feed.title / 5))
 
-        } else {
+        } else if(selectValue === undefined){
           const res = await axios.get(search_url.current+'&c&l=*')
           feedLength.current = (Number(res.data.feed.title))
           lastPage.current = (Math.ceil(res.data.feed.title / 5))
 
+        } else if(selectValue !== undefined) {
+          const res = await axios.get('/d/foo?f&user.'+selectValue+'-rg-.*'+searchText+'.*&c&l=*')
+          feedLength.current = (Number(res.data.feed.title))
+          lastPage.current = (Math.ceil(res.data.feed.title / 5))
         }
 
     } catch {
@@ -47,7 +52,7 @@ const ListProf = (props:any) => {
     }
  }
 
-  const putIndex = async(currentPage:number, searchText:string) => {
+  const putIndex = async(currentPage:number, searchText:string, selectValue:string) => {
     try {
       let firstIndex= firstIndexPage
       let lastIndex= lastIndexPage
@@ -62,45 +67,53 @@ const ListProf = (props:any) => {
   
       if(searchText === '' && text === '') {
         await axios.get('/d/foo?f&_pagination='+firstIndex+','+lastIndex+'&l=5')
-        setFirstIndexPage(firstIndex)
-        setLastIndexPage(lastIndex)
 
-      } else {
+      } else if(selectValue === undefined) {
         await axios.get(search_url.current+'&_pagination='+firstIndex+','+lastIndex+'&l=5')
-        setFirstIndexPage(firstIndex)
-        setLastIndexPage(lastIndex)
+
+      } else if(selectValue !== undefined) {
+        await axios.get('/d/foo?f&user.'+selectValue+'-rg-.*'+searchText+'.*&_pagination='+firstIndex+','+lastIndex+'&l=5')
 
       }
-
+      setFirstIndexPage(firstIndex)
+      setLastIndexPage(lastIndex)
     } catch {
       alert('indexが貼れませんでした。')
 
     } 
   }
  
-  const getPage = async(currentPage:number, retry_count:number, searchText:string)  => {
+  const getPage = async(currentPage:number, retry_count:number, searchText:string, selectValue:string)  => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-
+      console.log(selectValue)
       //ページの取得
       if(searchText === '' && text === ''){
         const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
         setFeed(res.data)
 
-      } else {
+      } else if(selectValue === undefined) {
         const res = await axios.get(search_url.current+'&n='+ currentPage + '&l=5')
         setFeed(res.data)
+       
+        } else if(selectValue !== undefined) {
+          const res = await axios.get('/d/foo?f&user.'+selectValue+'-rg-.*'+searchText+'.*&n='+ currentPage + '&l=5')
+          setFeed(res.data)
+          setSelectTitle(selectValue)
+        }
+
         if(searchText !== ''){
           setText(searchText)
-        }
-      }
+
+       }
+
 
     } catch(e) {
       const retry = () => {
         retry_count++
 
         const retryIndex = () => { 
-          getPage(currentPage, retry_count, searchText)
+          getPage(currentPage, retry_count, searchText, selectValue)
 
         }
         if(retry_count > 9) {
@@ -118,7 +131,7 @@ const ListProf = (props:any) => {
        retry()
       //ページのリクエストが最終番号以降のリクエストが来た時にindexを追加で貼り直す
       } else if(e.response.data.feed.title === "Please set a positive number for Page number.") {
-        putIndex(currentPage, '')
+        putIndex(currentPage, searchText, selectValue)
         retry()
       }
 
@@ -133,13 +146,13 @@ const ListProf = (props:any) => {
       if(entry && entry.link) {
          const key = entry.link[0].___href
          await axios.delete('/d'+ key)
-         getFeedLength('')
-         putIndex(deletedPage,'')
+         getFeedLength('','')
+         putIndex(deletedPage,'', '')
 
          if(index === 0 && deletedPage !== 1){
-           getPage(deletedPage -1, 0, '')
+           getPage(deletedPage -1, 0, '', '')
          } else {
-           getPage(deletedPage, 0, '')
+           getPage(deletedPage, 0, '', '')
          }
 
       }
@@ -221,10 +234,11 @@ const ListProf = (props:any) => {
          <p>登録されていません</p>
         }
         <Pagination
+         getPage={(e:number) => getPage(e, 0, text, selectTitle)} 
+         putIndex={(e:number) => putIndex(e, text, selectTitle)}
          setDeletedPage={setDeletedPage} getFeedLength={getFeedLength}
-         getPage={(e:number) => getPage(e, 0, '')} putIndex={(e:number) => putIndex(e, '')}
          feedLength={feedLength.current} lastPage={lastPage.current}
-         lastIndexPage={lastIndexPage} text={text} />
+         lastIndexPage={lastIndexPage} text={text} selectTitle={selectTitle} />
         <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
        </div> 
     )
