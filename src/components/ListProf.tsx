@@ -12,98 +12,136 @@ const ListProf = (props:any) => {
   const [feed, setFeed] = useState<VtecxApp.Entry[]>([])
   const [firstIndexPage, setFirstIndexPage] = useState(1)
   const [lastIndexPage, setLastIndexPage] = useState(50)
-  
+  const [text, setText] = useState('')
+
   const feedLength = useRef(0)
   const lastPage = useRef(0)
-  const getFeedLength = async() => {
+  const search_url = useRef('')
+
+  const getFeedLength = async(searchText:string) => {
     try {
+        search_url.current = '/d/foo?f&|user.name-rg-.*'+searchText+'.*'
+        +'&|user.email-rg-.*'+searchText+'.*&|user.gender-rg-.*'+searchText+'.*'
+        +'&|user.memo-rg-.*'+searchText+'.*&|user.birthday-rg-.*'+searchText+'.*'
+        +'&|user.check-rg-.*'+searchText+'.*&|user.select-rg-.*'+searchText+'.*'
+        +'&|user.job-rg-.*'+searchText+'.*&|user.address-rg-.*'+searchText+'.*'
+        +'&|user.height-rg-.*'+searchText+'.*&|user.weight-rg-.*'+searchText+'.*'
+
         axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
         //データの総件数取得
-        const res = await axios.get('/d/foo?f&c&l=*')
-        feedLength.current = (Number(res.data.feed.title))
-        lastPage.current = (Number(res.data.feed.title /1))
-         
+        if(searchText === '' && text === '') {
+          const res = await axios.get('/d/foo?f&c&l=*')
+          feedLength.current = (Number(res.data.feed.title))
+          lastPage.current = (Math.ceil(res.data.feed.title / 5))
+
+        } else {
+          const res = await axios.get(search_url.current+'&c&l=*')
+          feedLength.current = (Number(res.data.feed.title))
+          lastPage.current = (Math.ceil(res.data.feed.title / 5))
+
+        }
+
     } catch {
       alert('総件数の取得に失敗しました。')
 
     }
  }
 
-  const putIndex = async(currentPage:number) => {
+  const putIndex = async(currentPage:number, searchText:string) => {
     try {
-      let firstIndex= 1
-      let lastIndex=50
-     if(currentPage > firstIndexPage && currentPage > lastIndexPage){
+      let firstIndex= firstIndexPage
+      let lastIndex= lastIndexPage
+
+      if(currentPage > firstIndexPage && currentPage > lastIndexPage){
         firstIndex = firstIndex + 50
         lastIndex = lastIndex + 50
-        
+
       }
+
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-      await axios.get('/d/foo?f&_pagination='+firstIndex+','+lastIndex+'&l=1')
-      setFirstIndexPage(firstIndex)
-      setLastIndexPage(lastIndex)
-     
+  
+      if(searchText === '' && text === '') {
+        await axios.get('/d/foo?f&_pagination='+firstIndex+','+lastIndex+'&l=5')
+        setFirstIndexPage(firstIndex)
+        setLastIndexPage(lastIndex)
+
+      } else {
+        await axios.get(search_url.current+'&_pagination='+firstIndex+','+lastIndex+'&l=5')
+        setFirstIndexPage(firstIndex)
+        setLastIndexPage(lastIndex)
+
+      }
+
     } catch {
       alert('indexが貼れませんでした。')
-    }
-    
+
+    } 
   }
  
-  const getPage = async(currentPage:number, retry_count:number)  => {
+  const getPage = async(currentPage:number, retry_count:number, searchText:string)  => {
     try {
-      //ページの取得
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-      const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=1')
-      setFeed(res.data)
-      
+
+      //ページの取得
+      if(searchText === '' && text === ''){
+        const res = await axios.get('/d/foo?f&n='+ currentPage + '&l=5')
+        setFeed(res.data)
+
+      } else {
+        const res = await axios.get(search_url.current+'&n='+ currentPage + '&l=5')
+        setFeed(res.data)
+        if(searchText !== ''){
+          setText(searchText)
+        }
+      }
+
     } catch(e) {
       const retry = () => {
         retry_count++
 
         const retryIndex = () => { 
-          getPage(currentPage, retry_count)
-      
+          getPage(currentPage, retry_count, searchText)
+
         }
         if(retry_count > 9) {
           alert('ページが取得できませんでした')
           return false
-          
+ 
         }else{
           setTimeout(() => retryIndex(),1000) 
 
         }
       }
-      
+
       //indexが貼れていなかった場合10回までリトライ
       if(e.response.data.feed.title === "Please make a pagination index in advance.") {
        retry()
       //ページのリクエストが最終番号以降のリクエストが来た時にindexを追加で貼り直す
       } else if(e.response.data.feed.title === "Please set a positive number for Page number.") {
-        putIndex(currentPage)
+        putIndex(currentPage, '')
         retry()
       }
 
-    } 
-    
+    }  
   }
 
   //削除関数
   const deleteEntry = async (entry:VtecxApp.Entry, index:number) => {
     try {
       axios.defaults.headers['X-Requested-With'] = 'XMLHttpRequest'
-      
+ 
       if(entry && entry.link) {
          const key = entry.link[0].___href
          await axios.delete('/d'+ key)
-         getFeedLength()
-         putIndex(deletedPage)
+         getFeedLength('')
+         putIndex(deletedPage,'')
 
          if(index === 0 && deletedPage !== 1){
-           getPage(deletedPage -1, 0)
+           getPage(deletedPage -1, 0, '')
          } else {
-           getPage(deletedPage, 0)
+           getPage(deletedPage, 0, '')
          }
-         
+
       }
       alert('削除しました')
 
@@ -117,9 +155,8 @@ const ListProf = (props:any) => {
         <div>
         { feed.length > 0 ? 
         <div>
-          <SearchList setFeed={setFeed} 
-          feedLength={feedLength.current}
-          lastPage={lastPage.current} />
+          <SearchList getFeedLength={getFeedLength}
+          putIndex={putIndex} getPage={getPage} />
           <table>
               <tr>
                   <th>名前</th>
@@ -185,10 +222,9 @@ const ListProf = (props:any) => {
         }
         <Pagination
          setDeletedPage={setDeletedPage} getFeedLength={getFeedLength}
-         getPage={(e:number) => getPage(e, 0)} putIndex={(e:number) => putIndex(e)}
+         getPage={(e:number) => getPage(e, 0, '')} putIndex={(e:number) => putIndex(e, '')}
          feedLength={feedLength.current} lastPage={lastPage.current}
-         lastIndexPage={lastIndexPage}
-       />
+         lastIndexPage={lastIndexPage} text={text} />
         <button onClick={() => props.history.push('/RegisterProf')}>新規登録</button>
        </div> 
     )
