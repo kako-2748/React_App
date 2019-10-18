@@ -5,43 +5,45 @@ import { useState } from 'react'
 const SearchList = (_props:any) => {
     const [searchText, setSearchText] = useState('')
     const [searchFullText, setSearchFullText] = useState('')
-    const [selectValue, setSelectValue] = useState('')
-
-    const searchFull = () => {
-      _props.getFeedLength(searchFullText)
-      _props.putIndex(1,searchFullText)
-      _props.getPage(1,0, searchFullText)
-
-    }
+    const [checkValue, setCheckValue] = useState([''])
 
     const searchFeed = () => {
-      _props.getFeedLength(searchText,selectValue)
-      _props.putIndex(1,searchText,selectValue)
-      _props.getPage(1,0, searchText,selectValue)
+      _props.getFeedLength(searchText, searchFullText, checkValue)
+      _props.putIndex(1,searchText, searchFullText,checkValue)
+      _props.getPage(1,0, searchText, searchFullText, checkValue)
 
     }
+    
+    const pushValue = (value:string) => {
+      if(!checkValue.includes(value)) {
+        const checked = ([...checkValue, value])
+        const result = checked.filter((check:string) => check !== '')
+        setCheckValue(result)
 
+      }else if(checkValue.includes(value)) {
+        const result = checkValue.filter((check:string) => check !== value && check !== '')
+        setCheckValue(result)
+      }
+    }
+    
     return (
-        <div>
+        <form>
           <input type="text" placeholder="全文検索" value={searchFullText} onChange={(e:any) => setSearchFullText(e.target.value)} />
-          <button onClick={() => searchFull()}>検索</button>
+          <button type="button" onClick={() => searchFeed()}>検索</button><br />
           
-          <select value={selectValue} onChange={(e:any) => setSelectValue(e.target.value)}>
-            <option disabled selected value="">選択してください</option>
-            <option value="name">名前</option>
-            <option value="email">メール</option>
-            <option value="job">職業</option>
-            <option value="address">住所</option>
-            <option value="height">身長</option>
-            <option value="birthday">誕生日</option>
-            <option value="gender">性別</option>
-            <option value="check">チェック</option>
-            <option value="select">セレクト</option>
-            <option value="memo">メモ</option>
-          </select>
+          <input type="checkbox" name="check" value="name" onChange={() => pushValue("name")} />名前
+          <input type="checkbox" name="check" value="email" onChange={() => pushValue("email")} />メール
+          <input type="checkbox" name="check" value="job" onChange={() => pushValue("job")}  />職業     
+          <input type="checkbox" name="check" value="address" onChange={() => pushValue("address")} />住所
+          <input type="checkbox" name="check" value="height" onChange={() => pushValue("height")} />身長
+          <input type="checkbox" name="check" value="birthday" onChange={() => pushValue("birthday")} />誕生日
+          <input type="checkbox" name="check" value="gender" onChange={() => pushValue("gender")} />性別
+          <input type="checkbox" name="check" value="check" onChange={() => pushValue("check")} />チェック
+          <input type="checkbox" name="check" value="select" onChange={() => pushValue("select")} />セレクト
+          <input type="checkbox" name="check" value="memo" onChange={() => pushValue("memo")} />メモ
           <input type="text" placeholder="各項目検索" value={searchText} onChange={(e:any) => setSearchText(e.target.value)} />
-          <button onClick={() => searchFeed()}>検索</button>
-        </div>
+          <button type="button" onClick={() => searchFeed()}>検索</button>
+        </form>
     )
 }
 

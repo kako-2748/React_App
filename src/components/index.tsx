@@ -5,7 +5,7 @@ import RegisterProf from './RegisterProf'
 import ListProf from './ListProf'
 import EditProf from './EditProf'
 
-const App = () => {
+const App:React.FC = () => {
   return(
 
     <HashRouter>

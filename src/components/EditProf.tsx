@@ -3,7 +3,7 @@ import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
 import axios from 'axios'
 import {TextComponent, DateComponent, RadioComponent, CheckComponent, SelectComponent, TextareaComponent} from './RegisterProf'
-const EditProf = (props:any) => {
+const EditProf:React.FC = (props:any) => {
     const input_user = props.history.location.data
     const input_value = props.history.location.title
     const input_key = input_user.link[0].___href

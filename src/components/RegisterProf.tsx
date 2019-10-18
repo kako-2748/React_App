@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import axios from 'axios'
 
-const RegisterProf = (props:any) => {
+const RegisterProf:React.FC = (props:any) => {
     const [name, setName] =  useState('')
     const [email, setEmail] = useState('')
     const [memo, setMemo] = useState('')
